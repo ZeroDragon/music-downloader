@@ -48,10 +48,14 @@ q.drain = ->
 		console.timeEnd 'Total Time'
 		console.log "Finished, enjoy"
 
-request.get "http://www.getworkdonemusic.com/fast_tracks.json", {json:true}, (err,data,body)->
-	todo += body.length
-	q.push body.map((e)-> {url:e.stream_url+'?consumer_key=ffd65a79a82483821934415715bff247',title:e.title})
+consistensyDic = {}
+proceso = (err,data,body)->
+	body = body.map((e)-> {url:e.stream_url+'?consumer_key=ffd65a79a82483821934415715bff247',title:e.title})
+	for item in body
+		if not consistensyDic[item.title]?
+			todo++
+			consistensyDic[item.title] = true
+			q.push item
 
-	request.get "http://www.getworkdonemusic.com/faster_tracks.json", {json:true}, (err,data,body)->
-		todo += body.length
-		q.push body.map((e)-> {url:e.stream_url+'?consumer_key=ffd65a79a82483821934415715bff247',title:e.title})
+request.get "http://www.getworkdonemusic.com/fast_tracks.json", {json:true}, proceso
+request.get "http://www.getworkdonemusic.com/faster_tracks.json", {json:true}, proceso
